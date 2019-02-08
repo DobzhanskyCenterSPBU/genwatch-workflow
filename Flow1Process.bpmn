@@ -76,21 +76,7 @@ proc = script.execute([], new File(parentDir))</bpmn:script>
       <bpmn:incoming>SequenceFlow_1mb8uud</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_0gf1kv6</bpmn:outgoing>
     </bpmn:receiveTask>
-    <bpmn:sequenceFlow id="SequenceFlow_0gf1kv6" sourceRef="ReceiveTask_1yiisqq" targetRef="ExclusiveGateway_0esjuvg" />
-    <bpmn:scriptTask id="ScriptTask_04uka51" name="Run &#10;4a-, 4b- ..." scriptFormat="groovy">
-      <bpmn:incoming>SequenceFlow_1rb4xok</bpmn:incoming>
-      <bpmn:outgoing>SequenceFlow_0w0b29x</bpmn:outgoing>
-      <bpmn:script>def parentDir = execution.getVariable("PARENT_DIR")
-def module = execution.getVariable("MODULE")
-
-def script = "./flow1_step4.sh $module"
-proc = script.execute([], new File(parentDir))</bpmn:script>
-    </bpmn:scriptTask>
-    <bpmn:sequenceFlow id="SequenceFlow_0w0b29x" sourceRef="ScriptTask_04uka51" targetRef="ReceiveTask_11388rx" />
-    <bpmn:receiveTask id="ReceiveTask_11388rx" name="Step 4: wait for completion message" messageRef="Message_0rf4q20">
-      <bpmn:incoming>SequenceFlow_0w0b29x</bpmn:incoming>
-      <bpmn:outgoing>SequenceFlow_1z0sclr</bpmn:outgoing>
-    </bpmn:receiveTask>
+    <bpmn:sequenceFlow id="SequenceFlow_0gf1kv6" sourceRef="ReceiveTask_1yiisqq" targetRef="ScriptTask_1n4y7z4" />
     <bpmn:sequenceFlow id="SequenceFlow_1r9r92d" sourceRef="StartEvent_1" targetRef="Task_1viyox5" />
     <bpmn:sequenceFlow id="SequenceFlow_1e5iy1g" sourceRef="Task_1viyox5" targetRef="Task_1cr2pn9" />
     <bpmn:scriptTask id="Task_1viyox5" name="Setup process variables" scriptFormat="groovy">
@@ -110,7 +96,7 @@ execution.setVariable("FILE_MASK", files)
 execution.setVariable("TEST_NAME", testName)</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:scriptTask id="ScriptTask_1v0ifxl" name="Complete status &#38; notify users" scriptFormat="groovy">
-      <bpmn:incoming>SequenceFlow_1mwswm8</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_11taft3</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_1tfpbmq</bpmn:outgoing>
       <bpmn:script>def parentDir = execution.getVariable("PARENT_DIR")
 def module = execution.getVariable("MODULE")
@@ -123,7 +109,7 @@ proc = script.execute([], new File(parentDir))</bpmn:script>
       <bpmn:outgoing>SequenceFlow_1uja3i7</bpmn:outgoing>
     </bpmn:receiveTask>
     <bpmn:scriptTask id="ScriptTask_1n4y7z4" name="Create Manhattan plots" scriptFormat="groovy">
-      <bpmn:incoming>SequenceFlow_1mademz</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_0gf1kv6</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_1v0irsy</bpmn:outgoing>
       <bpmn:script>def parentDir = execution.getVariable("PARENT_DIR")
 def module = execution.getVariable("MODULE")
@@ -136,23 +122,9 @@ proc = script.execute([], new File(parentDir))</bpmn:script>
       <bpmn:outgoing>SequenceFlow_11taft3</bpmn:outgoing>
     </bpmn:receiveTask>
     <bpmn:sequenceFlow id="SequenceFlow_1v0irsy" sourceRef="ScriptTask_1n4y7z4" targetRef="ReceiveTask_126ek4o" />
-    <bpmn:sequenceFlow id="SequenceFlow_11taft3" sourceRef="ReceiveTask_126ek4o" targetRef="ExclusiveGateway_0f1dup8" />
-    <bpmn:sequenceFlow id="SequenceFlow_1rb4xok" sourceRef="ExclusiveGateway_0esjuvg" targetRef="ScriptTask_04uka51" />
-    <bpmn:sequenceFlow id="SequenceFlow_1mademz" sourceRef="ExclusiveGateway_0esjuvg" targetRef="ScriptTask_1n4y7z4" />
-    <bpmn:sequenceFlow id="SequenceFlow_1mwswm8" sourceRef="ExclusiveGateway_0f1dup8" targetRef="ScriptTask_1v0ifxl" />
-    <bpmn:sequenceFlow id="SequenceFlow_1z0sclr" sourceRef="ReceiveTask_11388rx" targetRef="ExclusiveGateway_0f1dup8" />
+    <bpmn:sequenceFlow id="SequenceFlow_11taft3" sourceRef="ReceiveTask_126ek4o" targetRef="ScriptTask_1v0ifxl" />
     <bpmn:sequenceFlow id="SequenceFlow_1tfpbmq" sourceRef="ScriptTask_1v0ifxl" targetRef="ReceiveTask_13gonwt" />
     <bpmn:sequenceFlow id="SequenceFlow_1uja3i7" sourceRef="ReceiveTask_13gonwt" targetRef="EndEvent_0hkjxyg" />
-    <bpmn:parallelGateway id="ExclusiveGateway_0esjuvg">
-      <bpmn:incoming>SequenceFlow_0gf1kv6</bpmn:incoming>
-      <bpmn:outgoing>SequenceFlow_1rb4xok</bpmn:outgoing>
-      <bpmn:outgoing>SequenceFlow_1mademz</bpmn:outgoing>
-    </bpmn:parallelGateway>
-    <bpmn:parallelGateway id="ExclusiveGateway_0f1dup8">
-      <bpmn:incoming>SequenceFlow_1z0sclr</bpmn:incoming>
-      <bpmn:incoming>SequenceFlow_11taft3</bpmn:incoming>
-      <bpmn:outgoing>SequenceFlow_1mwswm8</bpmn:outgoing>
-    </bpmn:parallelGateway>
     <bpmn:textAnnotation id="TextAnnotation_1c6khem">
       <bpmn:text>POST: /engine-rest/message
 {"messageName": "Step1CompletedMessage", "businessKey": moduleName}</bpmn:text>
@@ -166,9 +138,6 @@ proc = script.execute([], new File(parentDir))</bpmn:script>
       <bpmn:text>POST: /engine-rest/message {"messageName": "Step3CompletedMessage", "businessKey": moduleName}</bpmn:text>
     </bpmn:textAnnotation>
     <bpmn:association id="Association_0y176qn" sourceRef="ReceiveTask_1yiisqq" targetRef="TextAnnotation_11v5p95" />
-    <bpmn:textAnnotation id="TextAnnotation_055pa3w">
-      <bpmn:text>POST: /engine-rest/message {"messageName": "Step4CompletedMessage", "businessKey": moduleName}</bpmn:text>
-    </bpmn:textAnnotation>
   </bpmn:process>
   <bpmn:message id="Message_1pt7vjq" name="StartAllowedMessage" />
   <bpmn:message id="Message_0zco65v" name="Step1CompletedMessage" />
@@ -246,19 +215,9 @@ proc = script.execute([], new File(parentDir))</bpmn:script>
         <di:waypoint x="828" y="567" />
         <di:waypoint x="828" y="626" />
         <di:waypoint x="574" y="626" />
-        <di:waypoint x="574" y="799" />
-        <di:waypoint x="622" y="799" />
+        <di:waypoint x="574" y="720" />
+        <di:waypoint x="704" y="720" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="ScriptTask_04uka51_di" bpmnElement="ScriptTask_04uka51">
-        <dc:Bounds x="704" y="846" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="SequenceFlow_0w0b29x_di" bpmnElement="SequenceFlow_0w0b29x">
-        <di:waypoint x="804" y="886" />
-        <di:waypoint x="902" y="886" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="ReceiveTask_11388rx_di" bpmnElement="ReceiveTask_11388rx">
-        <dc:Bounds x="902" y="846" width="100" height="80" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="TextAnnotation_11fq8u0_di" bpmnElement="TextAnnotation_11fq8u0">
         <dc:Bounds x="856" y="292" width="224" height="83" />
       </bpmndi:BPMNShape>
@@ -273,9 +232,6 @@ proc = script.execute([], new File(parentDir))</bpmn:script>
         <di:waypoint x="878" y="532" />
         <di:waypoint x="924" y="535" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="TextAnnotation_055pa3w_di" bpmnElement="TextAnnotation_055pa3w">
-        <dc:Bounds x="731" y="949" width="226" height="92" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="SequenceFlow_1r9r92d_di" bpmnElement="SequenceFlow_1r9r92d">
         <di:waypoint x="102" y="156" />
         <di:waypoint x="190" y="156" />
@@ -306,30 +262,10 @@ proc = script.execute([], new File(parentDir))</bpmn:script>
       <bpmndi:BPMNEdge id="SequenceFlow_11taft3_di" bpmnElement="SequenceFlow_11taft3">
         <di:waypoint x="1002" y="720" />
         <di:waypoint x="1084" y="720" />
-        <di:waypoint x="1084" y="774" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="SequenceFlow_1rb4xok_di" bpmnElement="SequenceFlow_1rb4xok">
-        <di:waypoint x="647" y="824" />
-        <di:waypoint x="647" y="886" />
-        <di:waypoint x="704" y="886" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="SequenceFlow_1mademz_di" bpmnElement="SequenceFlow_1mademz">
-        <di:waypoint x="647" y="774" />
-        <di:waypoint x="647" y="720" />
-        <di:waypoint x="704" y="720" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="SequenceFlow_1mwswm8_di" bpmnElement="SequenceFlow_1mwswm8">
-        <di:waypoint x="1109" y="799" />
-        <di:waypoint x="1161" y="799" />
-        <di:waypoint x="1161" y="963" />
-        <di:waypoint x="985" y="963" />
-        <di:waypoint x="985" y="1063" />
+        <di:waypoint x="1084" y="890" />
+        <di:waypoint x="959" y="890" />
+        <di:waypoint x="959" y="1063" />
         <di:waypoint x="1034" y="1063" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="SequenceFlow_1z0sclr_di" bpmnElement="SequenceFlow_1z0sclr">
-        <di:waypoint x="1002" y="886" />
-        <di:waypoint x="1084" y="886" />
-        <di:waypoint x="1084" y="824" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_1tfpbmq_di" bpmnElement="SequenceFlow_1tfpbmq">
         <di:waypoint x="1134" y="1063" />
@@ -339,12 +275,6 @@ proc = script.execute([], new File(parentDir))</bpmn:script>
         <di:waypoint x="1312" y="1063" />
         <di:waypoint x="1438" y="1063" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="ParallelGateway_085ln9j_di" bpmnElement="ExclusiveGateway_0esjuvg">
-        <dc:Bounds x="622" y="774" width="50" height="50" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="ParallelGateway_0kj6uh4_di" bpmnElement="ExclusiveGateway_0f1dup8">
-        <dc:Bounds x="1059" y="774" width="50" height="50" />
-      </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
 </bpmn:definitions>
