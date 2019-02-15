@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_0c9xo7l" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="2.2.1">
+  <bpmn:process id="AdjPValuesCalculationProcess" name="Adjusted p-Value Calculation Process" isExecutable="true">
+    <bpmn:extensionElements>
+      <camunda:executionListener event="start">
+        <camunda:script scriptFormat="groovy">def module = execution.getProcessBusinessKey()
+
+def instances = execution.getProcessEngineServices().getRuntimeService().createProcessInstanceQuery().processInstanceBusinessKey(module,"PreCalculatedTestsUpload").active().count()
+
+execution.setVariable("instances", instances)
+
+if (instances &gt; 1) {
+   throw "too many instances are running"
+}</camunda:script>
+      </camunda:executionListener>
+    </bpmn:extensionElements>
+    <bpmn:startEvent id="StartEvent_3" name="Start">
+      <bpmn:extensionElements>
+        <camunda:formData businessKey="MODULE">
+          <camunda:formField id="MODULE" label="Module Name" type="string" defaultValue="Y5" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>SequenceFlow_0h9hd32</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:endEvent id="EndEvent_0hkjxyg" name="End">
+      <bpmn:incoming>SequenceFlow_1uja3i7</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:scriptTask id="ScriptTask_04uka53" name="Run &#10;4a-, 4b- ..." scriptFormat="groovy">
+      <bpmn:incoming>SequenceFlow_129ijb9</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0w0b29x</bpmn:outgoing>
+      <bpmn:script>def parentDir = execution.getVariable("PARENT_DIR")
+def module = execution.getVariable("MODULE")
+
+def script = "./flow3_step4.sh $module"
+proc = script.execute([], new File(parentDir))</bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:sequenceFlow id="SequenceFlow_0w0b29x" sourceRef="ScriptTask_04uka53" targetRef="ReceiveTask_13388rx" />
+    <bpmn:receiveTask id="ReceiveTask_13388rx" name="Step 4: wait for completion message" messageRef="Message_0w3wwyi">
+      <bpmn:incoming>SequenceFlow_0w0b29x</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_1z0sclr</bpmn:outgoing>
+    </bpmn:receiveTask>
+    <bpmn:scriptTask id="Task_1" name="Setup process variables" scriptFormat="groovy">
+      <bpmn:incoming>SequenceFlow_0h9hd32</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_129ijb9</bpmn:outgoing>
+      <bpmn:script>def parentDir = "/home/projects/gwatch/dropzone/Gwatch/tools"
+
+def module = execution.getProcessBusinessKey()
+
+execution.setVariable("PARENT_DIR", parentDir)
+execution.setVariable("MODULE", module)</bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:scriptTask id="ScriptTask_3v0ifxl" name="Complete status &#38; notify users" scriptFormat="groovy">
+      <bpmn:incoming>SequenceFlow_1z0sclr</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_1tfpbmq</bpmn:outgoing>
+      <bpmn:script>def parentDir = execution.getVariable("PARENT_DIR")
+def module = execution.getVariable("MODULE")
+
+def script = "./flow3_step6.sh $module"
+proc = script.execute([], new File(parentDir))</bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:receiveTask id="ReceiveTask_33gonwt" name="Step 6: wait for completion message" messageRef="Message_0loln2y">
+      <bpmn:incoming>SequenceFlow_1tfpbmq</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_1uja3i7</bpmn:outgoing>
+    </bpmn:receiveTask>
+    <bpmn:sequenceFlow id="SequenceFlow_1z0sclr" sourceRef="ReceiveTask_13388rx" targetRef="ScriptTask_3v0ifxl" />
+    <bpmn:sequenceFlow id="SequenceFlow_1tfpbmq" sourceRef="ScriptTask_3v0ifxl" targetRef="ReceiveTask_33gonwt" />
+    <bpmn:sequenceFlow id="SequenceFlow_1uja3i7" sourceRef="ReceiveTask_33gonwt" targetRef="EndEvent_0hkjxyg" />
+    <bpmn:sequenceFlow id="SequenceFlow_129ijb9" sourceRef="Task_1" targetRef="ScriptTask_04uka53" />
+    <bpmn:sequenceFlow id="SequenceFlow_0h9hd32" sourceRef="StartEvent_3" targetRef="Task_1" />
+    <bpmn:textAnnotation id="TextAnnotation_055pa3w">
+      <bpmn:text>POST: /engine-rest/message {"messageName": "Step3_4CompletedMessage", "businessKey": moduleName}</bpmn:text>
+    </bpmn:textAnnotation>
+    <bpmn:association id="Association_1a09210" sourceRef="ReceiveTask_13388rx" targetRef="TextAnnotation_055pa3w" />
+  </bpmn:process>
+  <bpmn:message id="Message_1pt7vjq" name="StartAllowedMessage" />
+  <bpmn:message id="Message_0zco65v" name="Step1CompletedMessage" />
+  <bpmn:message id="Message_008sm75" name="Step2CompletedMessage" />
+  <bpmn:message id="Message_08507cg" name="Step3CompletedMessage" />
+  <bpmn:message id="Message_0rf4q20" name="Step4CompletedMessage" />
+  <bpmn:message id="Message_1rxqtco" name="Step6CompletedMessage" />
+  <bpmn:message id="Message_1m5x871" name="Step5CompletedMessage" />
+  <bpmn:message id="Message_0w3wwyi" name="Step3_4CompletedMessage" />
+  <bpmn:message id="Message_0loln2y" name="Step3_6CompletedMessage" />
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="AdjPValuesCalculationProcess">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_3">
+        <dc:Bounds x="66" y="138" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="73" y="181" width="24" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_0hkjxyg_di" bpmnElement="EndEvent_0hkjxyg">
+        <dc:Bounds x="973" y="621" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="981" y="664" width="20" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ScriptTask_04uka51_di" bpmnElement="ScriptTask_04uka53">
+        <dc:Bounds x="325" y="277" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_0w0b29x_di" bpmnElement="SequenceFlow_0w0b29x">
+        <di:waypoint x="425" y="317" />
+        <di:waypoint x="558" y="317" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ReceiveTask_11388rx_di" bpmnElement="ReceiveTask_13388rx">
+        <dc:Bounds x="558" y="277" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="TextAnnotation_055pa3w_di" bpmnElement="TextAnnotation_055pa3w">
+        <dc:Bounds x="734" y="172" width="226" height="68" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ScriptTask_0h5gk0l_di" bpmnElement="Task_1">
+        <dc:Bounds x="190" y="116" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ScriptTask_1v0ifxl_di" bpmnElement="ScriptTask_3v0ifxl">
+        <dc:Bounds x="527" y="482" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ReceiveTask_13gonwt_di" bpmnElement="ReceiveTask_33gonwt">
+        <dc:Bounds x="761" y="482" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_1z0sclr_di" bpmnElement="SequenceFlow_1z0sclr">
+        <di:waypoint x="658" y="317" />
+        <di:waypoint x="725" y="317" />
+        <di:waypoint x="725" y="425" />
+        <di:waypoint x="453" y="425" />
+        <di:waypoint x="453" y="522" />
+        <di:waypoint x="527" y="522" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_1tfpbmq_di" bpmnElement="SequenceFlow_1tfpbmq">
+        <di:waypoint x="627" y="522" />
+        <di:waypoint x="761" y="522" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_1uja3i7_di" bpmnElement="SequenceFlow_1uja3i7">
+        <di:waypoint x="861" y="522" />
+        <di:waypoint x="916" y="522" />
+        <di:waypoint x="916" y="639" />
+        <di:waypoint x="973" y="639" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Association_1a09210_di" bpmnElement="Association_1a09210">
+        <di:waypoint x="658" y="294" />
+        <di:waypoint x="774" y="240" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_129ijb9_di" bpmnElement="SequenceFlow_129ijb9">
+        <di:waypoint x="290" y="156" />
+        <di:waypoint x="387" y="156" />
+        <di:waypoint x="387" y="230" />
+        <di:waypoint x="249" y="230" />
+        <di:waypoint x="249" y="317" />
+        <di:waypoint x="325" y="317" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_0h9hd32_di" bpmnElement="SequenceFlow_0h9hd32">
+        <di:waypoint x="102" y="156" />
+        <di:waypoint x="190" y="156" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
